@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DIỆU TƯỚNG AM</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,600;0,700;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- STYLES -->
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .has-error { border-left: 3px solid #e05252 !important; }
+  .has-error input, .has-error select, .has-error textarea { border-color: #e05252; }
+  .error-msg { display:none; font-size:0.78rem; color:#e05252; font-weight:600; margin-top:4px; }
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #C9922B; color: #fff; padding: 14px 28px; border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: none; z-index: 10000; font-weight: 600;
+  }
+  .toast.show { display: block; }
+  .form-group { margin-bottom: 1.4rem; }
+  label { font-weight: 700; color: var(--brown, #3d2409); display: block; margin-bottom: 6px; }
+  .radio-group, .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+  .radio-item, .check-item { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+</style>
+</head>
+<body>
+
+<!-- PIN OVERLAY -->
+<div id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-logo">&#127881;</div>
+    <div class="pin-title">DIEU TUONG AM</div>
+    <div class="pin-sub">Nhap ma PIN de tiep tuc</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key empty" disabled></button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">&#9003;</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 – HERO
+══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+
+  <nav class="navbar">
+    <div class="logo-box">
+      <img src="image/LOGO.png" alt="DIỆU TƯỚNG AM"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback" style="display:none; width:75px; height:75px; border-radius:50%; border:2px solid var(--gold); background:rgba(61,36,9,0.8); color:var(--gold-light); align-items:center; justify-content:center; font-size:0.75rem; text-align:center; line-height:1.1;">
+        DIỆU<br>TƯỚNG<br>AM
+      </div>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="#process">Quy trình</a></li>
+      <li><a href="#order">Đặt tượng</a></li>
+      <li><a href="#portfolio">Tác phẩm</a></li>
+      <li><a href="#order" class="nav-cta">Báo giá ngay</a></li>
+    </ul>
+
+    <div class="hamburger" onclick="toggleMobileMenu()">☰</div>
+  </nav>
+</section>
+
+<section id="order">
+  <p class="section-label">HỎI HÀNG THEO YÊU CẦU</p>
+  <h2 class="section-title">ĐẶT TƯỢNG THEO YÊU CẦU</h2>
+
+  <div class="form-outer">
+    <div class="form-top-bar">
+      <div>
+        <h2>Đặt Làm Tượng Phật Theo Yêu Cầu</h2>
+        <p class="top-sub">Vui lòng điền đầy đủ thông tin để chúng tôi tư vấn chính xác nhất</p>
+      </div>
+      <div style="text-align:right;">
+        <p class="top-phone">📞 0901 234 567</p>
+        <p class="top-call">Tư vấn miễn phí 24/7</p>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <div class="form-panel active">
+
+        <!-- 1. Họ và tên ** -->
+        <div class="form-group" id="fg-hoten">
+          <label>Họ và tên <span style="color:#C9922B">**</span></label>
+          <input type="text" id="inp-hoten" placeholder="Nhập họ và tên đầy đủ">
+          <span class="error-msg" id="err-hoten">⚠ Vui lòng nhập họ và tên</span>
+        </div>
+
+        <!-- 2. Số điện thoại (Zalo) ** -->
+        <div class="form-group" id="fg-phone">
+          <label>Số điện thoại (Zalo) <span style="color:#C9922B">**</span></label>
+          <input type="tel" id="inp-phone" placeholder="VD: 0901 234 567">
+          <span class="error-msg" id="err-phone">⚠ Vui lòng nhập số điện thoại hợp lệ (9–11 chữ số)</span>
+        </div>
+
+        <!-- 3. Email ** -->
+        <div class="form-group" id="fg-email">
+          <label>Email <span style="color:#C9922B">**</span></label>
+          <input type="email" id="inp-email" placeholder="example@gmail.com">
+          <span class="error-msg" id="err-email">⚠ Vui lòng nhập email hợp lệ</span>
+        </div>
+
+        <!-- 4. Tỉnh/Thành phố ** -->
+        <div class="form-group" id="fg-city">
+          <label>Tỉnh / Thành phố <span style="color:#C9922B">**</span></label>
+          <input type="text" id="inp-city" placeholder="VD: Hồ Chí Minh, Hà Nội...">
+          <span class="error-msg" id="err-city">⚠ Vui lòng nhập tỉnh / thành phố</span>
+        </div>
+
+        <!-- 5. Mục đích đặt tượng ** -->
+        <div class="form-group" id="fg-mucdich">
+          <label>Mục đích đặt tượng <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="muc-dich" value="Bàn thờ gia đình"> Bàn thờ gia đình</label>
+            <label class="radio-item"><input type="radio" name="muc-dich" value="Chùa / Đạo tràng"> Chùa / Đạo tràng</label>
+            <label class="radio-item"><input type="radio" name="muc-dich" value="Văn phòng"> Văn phòng</label>
+            <label class="radio-item"><input type="radio" name="muc-dich" value="Tặng người thân"> Tặng người thân</label>
+            <label class="radio-item"><input type="radio" name="muc-dich" value="other" onchange="toggleOther(this,'mucdich-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="mucdich-other" placeholder="Nhập mục đích khác..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-mucdich">⚠ Vui lòng chọn mục đích đặt tượng</span>
+        </div>
+
+        <!-- 6. Vị Phật/Bồ Tát (có thể chọn nhiều) ** -->
+        <div class="form-group" id="fg-phat">
+          <label>Vị Phật / Bồ Tát mong muốn (Có thể chọn nhiều) <span style="color:#C9922B">**</span></label>
+          <div class="checkbox-grid">
+            <label class="check-item"><input type="checkbox" name="phat" value="Phật Thích Ca"> Phật Thích Ca</label>
+            <label class="check-item"><input type="checkbox" name="phat" value="Phật A Di Đà"> Phật A Di Đà</label>
+            <label class="check-item"><input type="checkbox" name="phat" value="Quan Thế Âm Bồ Tát"> Quan Thế Âm Bồ Tát</label>
+            <label class="check-item"><input type="checkbox" name="phat" value="Phật Di Lặc"> Phật Di Lặc</label>
+            <label class="check-item"><input type="checkbox" name="phat" value="Phật Dược Sư"> Phật Dược Sư</label>
+            <label class="check-item"><input type="checkbox" name="phat" value="Địa Tạng Vương Bồ Tát"> Địa Tạng Vương Bồ Tát</label>
+          </div>
+          <input type="text" id="phat-other" placeholder="Nhập vị khác..." style="margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-phat">⚠ Vui lòng chọn ít nhất một vị Phật / Bồ Tát</span>
+        </div>
+
+        <!-- 7. Chiều cao ** -->
+        <div class="form-group" id="fg-chieucao">
+          <label>Chiều cao mong muốn (tính cả đế) <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="chieu-cao" value="Dưới 100cm"> Dưới 100cm</label>
+            <label class="radio-item"><input type="radio" name="chieu-cao" value="100-150cm"> 100–150cm</label>
+            <label class="radio-item"><input type="radio" name="chieu-cao" value="Trên 150cm"> Trên 150cm</label>
+            <label class="radio-item"><input type="radio" name="chieu-cao" value="other" onchange="toggleOther(this,'chieucao-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="chieucao-other" placeholder="Nhập kích thước cụ thể..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-chieucao">⚠ Vui lòng chọn chiều cao</span>
+        </div>
+
+        <!-- 8. Chất liệu ** -->
+        <div class="form-group" id="fg-chatlieu">
+          <label>Chất liệu mong muốn <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="chat-lieu" value="Gỗ tự nhiên"> Gỗ tự nhiên</label>
+            <label class="radio-item"><input type="radio" name="chat-lieu" value="Đồng"> Đồng</label>
+            <label class="radio-item"><input type="radio" name="chat-lieu" value="Đá tự nhiên"> Đá tự nhiên</label>
+            <label class="radio-item"><input type="radio" name="chat-lieu" value="Lưu ly"> Lưu ly</label>
+            <label class="radio-item"><input type="radio" name="chat-lieu" value="other" onchange="toggleOther(this,'chatlieu-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="chatlieu-other" placeholder="Nhập chất liệu khác..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-chatlieu">⚠ Vui lòng chọn chất liệu</span>
+        </div>
+
+        <!-- 9. Hoàn thiện bề mặt ** -->
+        <div class="form-group" id="fg-hoanthien">
+          <label>Hoàn thiện bề mặt <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="hoan-thien" value="Thếp vàng / Mạ vàng 24K"> Thếp vàng / Mạ vàng 24K</label>
+            <label class="radio-item"><input type="radio" name="hoan-thien" value="Giữ nguyên màu bản mộc/đá"> Giữ nguyên màu bản mộc / đá</label>
+            <label class="radio-item"><input type="radio" name="hoan-thien" value="Sơn màu giả cổ"> Sơn màu giả cổ</label>
+            <label class="radio-item"><input type="radio" name="hoan-thien" value="Vẽ gấm"> Vẽ gấm</label>
+            <label class="radio-item"><input type="radio" name="hoan-thien" value="other" onchange="toggleOther(this,'hoanthien-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="hoanthien-other" placeholder="Nhập kiểu hoàn thiện khác..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-hoanthien">⚠ Vui lòng chọn kiểu hoàn thiện</span>
+        </div>
+
+        <!-- 10. Tư thế ** -->
+        <div class="form-group" id="fg-tuthe">
+          <label>Tư thế của tôn tượng <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="tu-the" value="Ngồi kiết già"> Ngồi kiết già</label>
+            <label class="radio-item"><input type="radio" name="tu-the" value="Ngồi bán kiết"> Ngồi bán kiết</label>
+            <label class="radio-item"><input type="radio" name="tu-the" value="Đứng"> Đứng</label>
+            <label class="radio-item"><input type="radio" name="tu-the" value="Nằm Niết Bàn"> Nằm Niết Bàn</label>
+            <label class="radio-item"><input type="radio" name="tu-the" value="Tư vấn"> Tư vấn</label>
+            <label class="radio-item"><input type="radio" name="tu-the" value="other" onchange="toggleOther(this,'tuthe-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="tuthe-other" placeholder="Nhập tư thế khác..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-tuthe">⚠ Vui lòng chọn tư thế</span>
+        </div>
+
+        <!-- 11. Thủ ấn ** -->
+        <div class="form-group" id="fg-thuan">
+          <label>Thủ ấn (tư thế tay) mong muốn <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="thu-an" value="Thiền Thủ Ấn"> Thiền Thủ Ấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="Xúc Địa Thủ Ấn"> Xúc Địa Thủ Ấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="Chuyển Pháp Luân Ấn"> Chuyển Pháp Luân Ấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="Thí Nguyện Thủ Ấn"> Thí Nguyện Thủ Ấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="Vô Úy Thủ Ấn"> Vô Úy Thủ Ấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="Giáo Hóa Thủ Ấn"> Giáo Hóa Thủ Ấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="Tư vấn"> Tư vấn</label>
+            <label class="radio-item"><input type="radio" name="thu-an" value="other" onchange="toggleOther(this,'thuan-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="thuan-other" placeholder="Nhập thủ ấn khác..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-thuan">⚠ Vui lòng chọn thủ ấn</span>
+        </div>
+
+        <!-- 12. Phụ kiện thêm (không bắt buộc) -->
+        <div class="form-group">
+          <label>Phụ kiện thêm (Có thể chọn nhiều)</label>
+          <div class="checkbox-grid">
+            <label class="check-item"><input type="checkbox" name="phu-kien" value="Quang huy (Hào quang phía sau)"> Quang huy (Hào quang phía sau)</label>
+            <label class="check-item"><input type="checkbox" name="phu-kien" value="Đế sen (1 tầng)"> Đế sen (1 tầng)</label>
+            <label class="check-item"><input type="checkbox" name="phu-kien" value="Đế sen (2 tầng)"> Đế sen (2 tầng)</label>
+            <label class="check-item"><input type="checkbox" name="phu-kien" value="Chuỗi hạt"> Chuỗi hạt</label>
+            <label class="check-item"><input type="checkbox" name="phu-kien" value="Nhành dương liễu & Bình tịnh thủy"> Nhành dương liễu & Bình tịnh thủy</label>
+            <label class="check-item"><input type="checkbox" name="phu-kien" value="Tư vấn"> Tư vấn</label>
+          </div>
+          <input type="text" id="phukien-other" placeholder="Mục khác..." style="margin-top:8px; width:100%;">
+        </div>
+
+        <!-- 13. Khắc chữ -->
+        <div class="form-group">
+          <label>Bạn có muốn khắc chữ không?</label>
+          <p style="font-size:0.78rem; color:#666; margin:4px 0 8px;">(Nội dung khắc: Pháp danh người đặt, câu thí nguyện, năm... Bỏ trống nếu không có nhu cầu)</p>
+          <textarea id="khac-chu" placeholder="Nhập nội dung cần khắc..." rows="3"></textarea>
+        </div>
+
+        <!-- 14. Thời gian hoàn thành ** -->
+        <div class="form-group" id="fg-thoigian">
+          <label>Thời gian mong muốn hoàn thành <span style="color:#C9922B">**</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="thoi-gian" value="Tối thiểu 6 tháng"> Tối thiểu 6 tháng</label>
+            <label class="radio-item"><input type="radio" name="thoi-gian" value="12 tháng"> 12 tháng</label>
+            <label class="radio-item"><input type="radio" name="thoi-gian" value="Không gấp"> Không gấp</label>
+            <label class="radio-item"><input type="radio" name="thoi-gian" value="Tư vấn"> Tư vấn</label>
+          </div>
+          <span class="error-msg" id="err-thoigian">⚠ Vui lòng chọn thời gian mong muốn</span>
+        </div>
+
+        <!-- 15. Ngân sách * -->
+        <div class="form-group">
+          <label>Ngân sách dự kiến <span style="color:#C9922B">*</span></label>
+          <input type="text" id="ngan-sach" placeholder="VD: 50 – 100 triệu VND">
+        </div>
+
+        <!-- 16. Ảnh mẫu -->
+        <div class="form-group">
+          <label>Ảnh mẫu hoặc tượng tham khảo (Google Drive, Zalo...)</label>
+          <input type="text" id="anh-mau" placeholder="Dán link ảnh mẫu tại đây">
+          <p style="font-size:0.78rem; color:#666;">Tải tối đa 10 tệp (mỗi tệp ≤ 10 MB) nếu có link</p>
+        </div>
+
+        <!-- 17. Yêu cầu đặc biệt -->
+        <div class="form-group">
+          <label>Yêu cầu đặc biệt khác</label>
+          <textarea id="yeu-cau-dac-biet" placeholder="Ví dụ: An vị ngoài trời, cần hộp đựng cao cấp, vận chuyển quốc tế..." rows="3"></textarea>
+        </div>
+
+        <!-- 18. Biết đến qua đâu * -->
+        <div class="form-group" id="fg-bietqua">
+          <label>Quý khách biết đến chúng tôi qua đâu? <span style="color:#C9922B">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="biet-qua" value="Facebook"> Facebook</label>
+            <label class="radio-item"><input type="radio" name="biet-qua" value="Zalo"> Zalo</label>
+            <label class="radio-item"><input type="radio" name="biet-qua" value="Tìm kiếm Google"> Tìm kiếm Google</label>
+            <label class="radio-item"><input type="radio" name="biet-qua" value="Người quen giới thiệu"> Người quen giới thiệu</label>
+            <label class="radio-item"><input type="radio" name="biet-qua" value="other" onchange="toggleOther(this,'bietqua-other')"> Mục khác:</label>
+          </div>
+          <input type="text" id="bietqua-other" placeholder="Nhập nguồn khác..." style="display:none; margin-top:8px; width:100%;">
+          <span class="error-msg" id="err-bietqua">⚠ Vui lòng cho biết nguồn</span>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <button onclick="submitForm()" class="btn-submit" style="width:100%; padding:16px; font-size:1.1rem; background:#C9922B; color:#fff; border:none; border-radius:8px; cursor:pointer;">
+            ✓ Gửi thông tin đặt tượng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 – PORTFOLIO + FOOTER
+══════════════════════════════════════════ -->
+<section id="portfolio">
+  <p class="section-label"></p>
+  <h2 class="section-title"></h2>
+
+  <div class="gallery-grid">
+    <div class="gallery-item">
+      <img src="image/1.jpg" alt="Tác phẩm 1" loading="lazy">
+      <div class="gallery-overlay"><div><h4></h4><p></p></div></div>
+    </div>
+    <div class="gallery-item">
+      <img src="image/2.jpg" alt="Tác phẩm 2" loading="lazy">
+      <div class="gallery-overlay"><div><h4></h4><p></p></div></div>
+    </div>
+    <div class="gallery-item">
+      <img src="image/3.jpg" alt="Tác phẩm 3" loading="lazy">
+      <div class="gallery-overlay"><div><h4></h4><p></p></div></div>
+    </div>
+    <div class="gallery-item">
+      <img src="image/4.jpg" alt="Tác phẩm 4" loading="lazy">
+      <div class="gallery-overlay"><div><h4></h4><p></p></div></div>
+    </div>
+    <div class="gallery-item">
+      <img src="image/5.jpg" alt="Tác phẩm 5" loading="lazy">
+      <div class="gallery-overlay"><div><h4></h4><p></p></div></div>
+    </div>
+    <div class="gallery-item" style="background:linear-gradient(135deg,#2A1506,#5C3015);">
+      <img src="image/6.jpg" alt="Tác phẩm 6" loading="lazy">
+      <div class="gallery-overlay"><div><h4></h4><p></p></div></div>
+    </div>
+  </div>
+<div class="footer-strip">
+  <div class="company-brand">
+      <h3>DIỆU TƯỚNG AM</h3>
+      <p>Chuyên tạc tượng Phật thủ công theo yêu cầu. Kết hợp nghệ thuật điêu khắc truyền thống với tiêu chuẩn chất lượng hiện đại. Hơn 20 năm kinh nghiệm phục vụ hàng trăm ngôi chùa, gia đình và doanh nghiệp trên khắp cả nước.</p>
+      <div class="social-links">
+        <a href="https://www.facebook.com/dieutuongam.nghethuatphatgiao" class="social-btn" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Facebook
+        </a>
+        <a href="http://www.youtube.com/@dieutuongamnghethuatphatgiao?sub_confirmation=1" class="social-btn" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+          YouTube
+        </a>
+        <a href="#" class="social-btn" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.75a4.85 4.85 0 01-1.02-.06z"/></svg>
+          TikTok
+        </a>
+      </div>
+    </div>
+
+    <div class="info-col">
+      <h4>Liên hệ</h4>
+      <ul>
+        <li>0901 234 567</li>
+        <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3b52555d547b5f525e4e4f4e54555c5a5615585456">[email&#160;protected]</a></li>
+        <li>Showroom Hồ Chí Minh: 382 Nam Kỳ Khởi Nghĩa, P. Xuân Hòa, Hồ Chí Minh</li>
+        <li>Showroom Hà Nội: 252 Bà Triệu, P. Hai Bà Trưng, Hà Nội</li>
+        <li>T2 – CN: 8:30 – 20:00</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="copyright">
+    <p>© 2026 Diệu Tướng Am. Tất cả quyền được bảo lưu.</p>
+    <p>dieutuongam.com</p>
+  </div>
+  
+</section>
+
+<!-- Toast thông báo -->
+<div class="toast" id="toast">Yêu cầu của bạn đã được gửi thành công!<br>Chúng tôi sẽ liên hệ trong vòng 24 giờ.</div>
+
+<script>
+// ================== THAY ĐƯỜNG DẪN NÀY SAU KHI DEPLOY APPS SCRIPT ==================
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyivTqW4UbefpLJlP5q4UWg8IjXHpM9K7s_VFH5cKFdFvVrtom3m7TYzVxQa-zRbxxlSQ/exec";   // ← DÁN URL WEB APP VÀO ĐÂY
+
+function toggleOther(radio, inputId) {
+  const input = document.getElementById(inputId);
+  if (input) input.style.display = radio.checked ? 'block' : 'none';
+}
+
+function validateForm() {
+  let valid = true;
+
+  // Họ tên
+  if (!document.getElementById('inp-hoten').value.trim()) {
+    document.getElementById('err-hoten').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-hoten').style.display = 'none';
+
+  // SĐT
+  const phone = document.getElementById('inp-phone').value.replace(/\s/g, '');
+  if (!phone || !/^[0-9]{9,11}$/.test(phone)) {
+    document.getElementById('err-phone').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-phone').style.display = 'none';
+
+  // Email
+  const email = document.getElementById('inp-email').value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    document.getElementById('err-email').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-email').style.display = 'none';
+
+  // Tỉnh/thành
+  if (!document.getElementById('inp-city').value.trim()) {
+    document.getElementById('err-city').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-city').style.display = 'none';
+
+  // Mục đích
+  if (!document.querySelector('input[name="muc-dich"]:checked')) {
+    document.getElementById('err-mucdich').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-mucdich').style.display = 'none';
+
+  // Vị Phật
+  const phatCount = document.querySelectorAll('input[name="phat"]:checked').length;
+  if (phatCount === 0 && !document.getElementById('phat-other').value.trim()) {
+    document.getElementById('err-phat').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-phat').style.display = 'none';
+
+  // Các radio bắt buộc
+  const required = ['chieu-cao','chat-lieu','hoan-thien','tu-the','thu-an','thoi-gian'];
+  required.forEach(name => {
+    if (!document.querySelector(`input[name="${name}"]:checked`)) {
+      document.getElementById(`err-${name.replace(/-/g,'')}`).style.display = 'block';
+      valid = false;
+    } else {
+      document.getElementById(`err-${name.replace(/-/g,'')}`).style.display = 'none';
+    }
+  });
+
+  // Biết qua đâu
+  if (!document.querySelector('input[name="biet-qua"]:checked')) {
+    document.getElementById('err-bietqua').style.display = 'block';
+    valid = false;
+  } else document.getElementById('err-bietqua').style.display = 'none';
+
+  return valid;
+}
+
+function collectData() {
+  return {
+    timestamp: new Date().toLocaleString('vi-VN'),
+    hoTen: document.getElementById('inp-hoten').value.trim(),
+    soDienThoai: document.getElementById('inp-phone').value.trim(),
+    email: document.getElementById('inp-email').value.trim(),
+    tinhThanh: document.getElementById('inp-city').value.trim(),
+    mucDich: (() => {
+      const el = document.querySelector('input[name="muc-dich"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('mucdich-other').value.trim() : el.value) : '';
+    })(),
+    viPhat: Array.from(document.querySelectorAll('input[name="phat"]:checked')).map(e => e.value).join(', ') + 
+            (document.getElementById('phat-other').value.trim() ? ', ' + document.getElementById('phat-other').value.trim() : ''),
+    chieuCao: (() => {
+      const el = document.querySelector('input[name="chieu-cao"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('chieucao-other').value.trim() : el.value) : '';
+    })(),
+    chatLieu: (() => {
+      const el = document.querySelector('input[name="chat-lieu"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('chatlieu-other').value.trim() : el.value) : '';
+    })(),
+    hoanThien: (() => {
+      const el = document.querySelector('input[name="hoan-thien"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('hoanthien-other').value.trim() : el.value) : '';
+    })(),
+    tuThe: (() => {
+      const el = document.querySelector('input[name="tu-the"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('tuthe-other').value.trim() : el.value) : '';
+    })(),
+    thuAn: (() => {
+      const el = document.querySelector('input[name="thu-an"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('thuan-other').value.trim() : el.value) : '';
+    })(),
+    phuKien: Array.from(document.querySelectorAll('input[name="phu-kien"]:checked')).map(e => e.value).join(', ') + 
+             (document.getElementById('phukien-other').value.trim() ? ', ' + document.getElementById('phukien-other').value.trim() : ''),
+    khacChu: document.getElementById('khac-chu').value.trim(),
+    thoiGian: document.querySelector('input[name="thoi-gian"]:checked')?.value || '',
+    nganSach: document.getElementById('ngan-sach').value.trim(),
+    anhMau: document.getElementById('anh-mau').value.trim(),
+    yeuCauDacBiet: document.getElementById('yeu-cau-dac-biet').value.trim(),
+    bietQua: (() => {
+      const el = document.querySelector('input[name="biet-qua"]:checked');
+      return el ? (el.value === 'other' ? document.getElementById('bietqua-other').value.trim() : el.value) : '';
+    })()
+  };
+}
+
+async function submitForm() {
+  if (!validateForm()) {
+    alert("Vui lòng điền đầy đủ các trường bắt buộc (**)");
+    return;
+  }
+
+  const btn = document.querySelector('button[onclick="submitForm()"]');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Đang gửi thông tin...';
+  btn.disabled = true;
+
+  const data = collectData();
+
+  try {
+    const formData = new FormData();
+    Object.keys(data).forEach(key => formData.append(key, data[key] || ''));
+
+    const response = await fetch(GOOGLE_SHEET_URL, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      document.getElementById('toast').classList.add('show');
+      setTimeout(() => document.getElementById('toast').classList.remove('show'), 6000);
+
+      // Reset form
+      document.querySelectorAll('input, textarea').forEach(el => {
+        if (el.type !== 'radio' && el.type !== 'checkbox') el.value = '';
+      });
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
+    } else {
+      alert("Có lỗi xảy ra khi gửi. Vui lòng thử lại hoặc gọi 0901 234 567");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.");
+  }
+
+  btn.innerHTML = originalText;
+  btn.disabled = false;
+}
+
+// ====================== PIN LOCK ======================
+const PIN_CORRECT  = '1234';        // ← ĐỔI MÃ PIN TẠI ĐÂY
+const PIN_STORAGE  = 'dta_pin_ok';
+
+let pinBuffer = '';
+
+function initPin() {
+  // Nếu thiết bị này đã xác thực PIN trước đó → bỏ qua
+  if (sessionStorage.getItem(PIN_STORAGE) === 'yes') {
+    document.getElementById('pin-overlay').classList.add('hidden');
+  }
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('pd' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === PIN_CORRECT) {
+    sessionStorage.setItem(PIN_STORAGE, 'yes');
+    const overlay = document.getElementById('pin-overlay');
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.4s';
+    setTimeout(() => overlay.classList.add('hidden'), 400);
+  } else {
+    document.getElementById('pin-error').textContent = '❌ Mã PIN không đúng. Thử lại!';
+    // rung nhẹ
+    const box = document.querySelector('.pin-box');
+    box.style.animation = 'none';
+    box.style.transform = 'translateX(-6px)';
+    setTimeout(() => box.style.transform = 'translateX(6px)', 80);
+    setTimeout(() => box.style.transform = 'translateX(0)',   160);
+    pinBuffer = '';
+    updatePinDots();
+  }
+}
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e5635fb3e6e6e43',t:'MTc3NTAzMjAwNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
